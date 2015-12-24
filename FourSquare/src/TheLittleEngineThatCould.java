@@ -7,22 +7,19 @@ import java.util.*;
 
 import javax.swing.JFrame;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array; 
-
 
 public class TheLittleEngineThatCould extends JFrame {        
 	boolean isRunning = true; 
 	int fps = 30; 
 	double fov=500;
-	//boolean wireframe = true;
-	boolean wireframe = false;
 	int windowWidth = 500; 
 	int windowHeight = 500;
+	Robot wallE;
 	Rufus rufus;
 	ArrayList <Fourbject> objs=new ArrayList<>(0);
 	double V[][]={{1,0,0},{0,1,0},{0,0,1},{0,0,0}};
 	double vUp=0; //velocity up - used for jumping
-	Color[] colors={Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN, Color.BLUE, Color.BLACK, Color.CYAN, Color.DARK_GRAY, Color.GRAY, Color.LIGHT_GRAY, Color.MAGENTA, Color.PINK};
+	Color[] colors={Color.CYAN};//{Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN, Color.BLUE, Color.BLACK, Color.CYAN, Color.DARK_GRAY, Color.GRAY, Color.LIGHT_GRAY, Color.MAGENTA, Color.PINK};
 
 	BufferedImage backBuffer; 
 	Insets insets; 
@@ -38,14 +35,21 @@ public class TheLittleEngineThatCould extends JFrame {
 	public void run() { 
 		initialize(); 
 		rufus=new Rufus();
+		try {
+			wallE=new Robot();
+		} catch (AWTException e1) {
+			e1.printStackTrace();
+		}
+		wallE.mouseMove(this.getLocationOnScreen().x+this.windowWidth/2, this.getLocationOnScreen().y+this.windowHeight/2); //move cursor to center
+		this.setCursor(this.getToolkit().createCustomCursor( new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB ), new java.awt.Point(), null ) ); //hide cursor
 		Fourbject f=new Fourbject();
 		int index=0;
 		Point p[]= new Point[16];
-		for(int i=0; i<=1; i++){
+		for(int i=0; i<=1; i++){ //initialize the points in a tesseract 
 			for(int j=0; j<=1; j++){
 				for(int k=0; k<=1; k++){
 					for(int l=0; l<=1; l++){
-						p[index]=new Point(i+3,j+0.5,k+0.5,l-0.5);
+						p[index]=new Point(i+3,(j-0.5)*(l),(k-0.5)*(l),l-0.5); //multiplying y and z coords by w makes it a pyramid (though it has more edges than it should, some are just 0 length)
 						index++;
 					}
 				}
@@ -74,22 +78,23 @@ public class TheLittleEngineThatCould extends JFrame {
 			for(int j=0; j<=1; j++){
 				for(int k=0; k<=1; k++){
 					for(int l=0; l<=1; l++){
-						pg[index]=new Point(i+5,j+0.8,k-1.9,l-0.5);
+						pg[index]=new Point(i-4,j-0.5,k-0.5,l-0.5);
 						index++;
 					}
 				}
 			}
 		}
-		g.setEdges(edges);
 		g.setPoints(pg);
+		g.setEdges(edges); //we can use the same edges and tbj's and diff points, to make another tesseract
 		g.setThreebjects(tbj);
 		objs.add(g);
+		rufus.lookRight(1); 
 
 		while(isRunning) { 
 			long time = System.currentTimeMillis(); 
 
-			update(); 
-			draw(); 
+			update();
+			draw();
 
 			//  delay for each frame  -   time it took for one frame 
 			time = (1000 / fps) - (System.currentTimeMillis() - time); 
@@ -129,39 +134,61 @@ public class TheLittleEngineThatCould extends JFrame {
 				vUp=0;
 			}
 		}*/
-		/*if (input.isKeyDown(KeyEvent.VK_W)) { 
+		if (input.isKeyDown(KeyEvent.VK_W)) { 
 			rufus.moveForward(1); 
-			System.out.println(rufus.pov);
+			//System.out.println(rufus.location);
 		}
 		if (input.isKeyDown(KeyEvent.VK_S)) { 
 			rufus.moveForward(-1); 
-			System.out.println(rufus.pov);
-		}
-		if (input.isKeyDown(KeyEvent.VK_A)) { 
-			rufus.moveSideways(-1); 
-			System.out.println(rufus.pov);
+			//System.out.println(rufus.location);
 		}
 		if (input.isKeyDown(KeyEvent.VK_D)) { 
 			rufus.moveSideways(1); 
-			System.out.println(rufus.pov);
+			//System.out.println(rufus.location);
 		}
-		if (input.isKeyDown(KeyEvent.VK_LEFT)) { 
-			rufus.changeYaw(-1); 
-			System.out.println(rufus.pov);
-		}
-		if (input.isKeyDown(KeyEvent.VK_RIGHT)) { 
-			rufus.changeYaw(1); 
-			System.out.println(rufus.pov);
-		}
-		if (input.isKeyDown(KeyEvent.VK_UP)) { 
-			rufus.changePitch(1); 
-			System.out.println(rufus.pov);
-		}
-		if (input.isKeyDown(KeyEvent.VK_DOWN)) { 
-			rufus.changePitch(-1); 
-			System.out.println(rufus.pov);
+		if (input.isKeyDown(KeyEvent.VK_A)) { 
+			rufus.moveSideways(-1); 
+			//System.out.println(rufus.location);
 		}
 		if (input.isKeyDown(KeyEvent.VK_SPACE)) { 
+			rufus.stepZ(1); 
+			//System.out.println(rufus.location);
+		}
+		if (input.isKeyDown(KeyEvent.VK_SHIFT)) { 
+			rufus.stepZ(-1); 
+			//System.out.println(rufus.location);
+		}
+		if (input.isKeyDown(KeyEvent.VK_R)) { 
+			rufus.stepW(1); 
+			//System.out.println(rufus.location);
+		}
+		if (input.isKeyDown(KeyEvent.VK_F)) { 
+			rufus.stepW(-1); 
+			//System.out.println(rufus.location);
+		}
+		
+		
+		if (input.isKeyDown(KeyEvent.VK_LEFT)) { 
+			rufus.lookRight(-1); 
+		}
+		if (input.isKeyDown(KeyEvent.VK_RIGHT)) { 
+			rufus.lookRight(1); 
+		}
+		if (input.isKeyDown(KeyEvent.VK_UP)) { 
+			rufus.lookUp(1); 
+		}
+		if (input.isKeyDown(KeyEvent.VK_DOWN)) { 
+			rufus.lookUp(-1); 
+		}
+		if(input.mouseX!=this.windowWidth/2 || input.mouseY!=this.windowHeight/2){
+			//System.out.println(input.mouseX+","+input.mouseY);
+			 
+			//System.out.println("aaaah");
+			rufus.lookRight(input.mouseX-this.windowWidth/2);
+			rufus.lookUp(this.windowHeight/2-input.mouseY);
+			wallE.mouseMove(this.getLocationOnScreen().x+this.windowWidth/2, this.getLocationOnScreen().y+this.windowHeight/2);
+		}
+		/*if (input.isKeyDown(KeyEvent.VK_SPACE)) { 
 			vUp=5;
 			System.out.println(rufus.pov);
 		}*/
@@ -177,16 +204,25 @@ public class TheLittleEngineThatCould extends JFrame {
 		bbg.fillRect(0, 0, windowWidth, windowHeight); 
 		
 		bbg.translate(windowWidth/2, windowHeight/2); //Fixes the coord system
-		//bbg.setColor(Color.BLACK); 
-		//bbg.drawOval((int)rufus.pov.x, 10, 20, 20);
+		
+		//System.out.println(rufus.location);
 		ArrayList<ArrayList<Point>> fbjFaces = new ArrayList<ArrayList<Point>>(0);
 		for(int i=0; i<objs.size(); i++){
 			//System.out.println("fbjFaces for fbj "+i+":"+fbjFaces);
-			fbjFaces.addAll(objs.get(i).draw(V));
+			fbjFaces.addAll(objs.get(i).draw(rufus.location, rufus.viewMatrix));
 		}
+		//System.out.println(fbjFaces.size());
+		/*for(int i=0; i<rufus.viewMatrix.length; i++){
+			for(int j=0; j<rufus.viewMatrix[0].length; j++){
+				System.out.print(rufus.viewMatrix[i][j]+" ");
+			}
+			System.out.println();
+		}
+		System.out.println();*/
+		
 		int color=0;
 		for(int i=0; i<fbjFaces.size(); i++){
-			for(ArrayList<Point> polygon:orderFaces(fbjFaces)){ //TODO: order so that the closest objects are drawn first (HOW????)
+			for(ArrayList<Point> polygon:orderFaces(fbjFaces)){
 				bbg.setColor(colors[color%colors.length]); 
 				color++;
 				//System.out.println("drawing:"+polygon);
@@ -194,9 +230,13 @@ public class TheLittleEngineThatCould extends JFrame {
 				double xTotal=0; //for center
 				double yTotal=0;
 				for(Point point:polygon){
-					dispPts.add(new Point(point.y/point.x,point.z/point.x)); //y,z are sidewaysness and upness to pt, and x is dist to pt
-					xTotal+=point.y/point.x;
-					yTotal+=point.z/point.x;
+					Point newPoint=new Point(point.y/point.x,point.z/point.x);
+					if(point.x<=0){
+						newPoint=new Point(point.y/(1/420),point.z/(1/420)); //420 for luck //TODO: deal with close object rendering intelligently
+					}
+					dispPts.add(newPoint); //y,z are sidewaysness and upness to pt, and x is dist to pt
+					xTotal+=newPoint.x;
+					yTotal+=newPoint.y;
 				}
 				Point center = new Point(xTotal/dispPts.size(), yTotal/dispPts.size());
 				for(int sortCount=1; sortCount<dispPts.size(); sortCount++){ //insertion sort by clockwise //TODO: optimize?
@@ -227,12 +267,11 @@ public class TheLittleEngineThatCould extends JFrame {
 				for(int j=0; j<dispPts.size(); j++){ 
 					Point p=dispPts.get(j);
 					xPoints[j]=(int)(fov*p.x);
-					yPoints[j]=(int)(fov*p.y);
+					yPoints[j]=-(int)(fov*p.y); //the - makes the signs work out
 				}
-				if(wireframe)
-					bbg.drawPolygon(xPoints, yPoints, polygon.size());
-				else
-					bbg.fillPolygon(xPoints, yPoints, polygon.size());
+				bbg.fillPolygon(xPoints, yPoints, polygon.size());
+				bbg.setColor(Color.BLACK);
+				bbg.drawPolygon(xPoints, yPoints, polygon.size());
 			}
 		}
 		g.drawImage(backBuffer, insets.left, insets.top, this); 
@@ -252,10 +291,14 @@ public class TheLittleEngineThatCould extends JFrame {
 		return faces;
 	}
 	boolean isBehind(ArrayList<Point> a, ArrayList<Point> b){ //Painter's algorithm / depth sort. Is a behind b?
-		double aDmax=0; //D is the equivalent (I think?) of Z in traditional painter's algorithm 
+		double aDmax=0;
 		double aDmin=0;
 		double bDmax=0;
 		double bDmin=0;
+		double aXmax=0;
+		double aXmin=0;
+		double bXmax=0;
+		double bXmin=0;
 		for(Point p:a){
 			double d=p.x*p.x+p.y*p.y+p.z*p.z; //distance squared to point
 			if(d>aDmax){
@@ -263,6 +306,12 @@ public class TheLittleEngineThatCould extends JFrame {
 			}
 			if(d<aDmin){
 				aDmin=d;
+			}
+			if(p.x>aXmax){
+				aXmax=p.x;
+			}
+			if(p.x<aXmin){
+				aXmin=p.x;
 			}
 		}
 		for(Point p:b){
@@ -273,18 +322,38 @@ public class TheLittleEngineThatCould extends JFrame {
 			if(d<bDmin){
 				bDmin=d;
 			}
+			if(p.x>bXmax){
+				bXmax=p.x;
+			}
+			if(p.x<bXmin){
+				bXmin=p.x;
+			}
 		}
-		if(aDmin>bDmax){ //if the closest point of a is further than the farthest point of b
-			return true; //then a is behind b
+		if(aXmin>=bXmax){ //if the closest point of a is further than the farthest point of b
+			return true;  //then a is behind b
 		}
-		if(bDmin>aDmax){ //if the closest point of b is further than the farthest point of a
-			return false;//then b is behind a
+		if(bXmin>=aXmax){ //if the closest point of b is further than the farthest point of a
+			return false; //then b is behind a
 		}
+		/*if(aDmin>=bDmax){ //if the closest point of a is further than the farthest point of b
+			return true;  //then a is behind b
+		}
+		if(bDmin>=aDmax){ //if the closest point of b is further than the farthest point of a
+			return false; //then b is behind a
+		}*/
 		//TODO: actually implement the majority of the algorithm
-		if(aDmax==bDmax){ //this is just a stopgap until the above is completed
-			return aDmin>bDmin;
+		if(aXmax==bXmax){ //this is just a stopgap until the above is completed
+			if(aDmax==bDmax){
+				if(aXmin==bXmin){
+					return aDmin>bDmin;	
+				} else {
+					return aXmin>bXmin;
+				}
+			} else {
+				return aDmax>bDmax;
+			}
 		} else {
-			return aDmax>bDmax;
+			return aXmax>bXmax;
 		}
 	}
 }

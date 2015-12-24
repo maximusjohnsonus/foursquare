@@ -5,7 +5,7 @@ import java.awt.event.*;
 /** 
  * Makes handling input a lot simpler 
  */ 
-public class InputHandler implements KeyListener 
+public class InputHandler implements KeyListener, MouseMotionListener
 {        
 	/** 
 	 * Assigns the newly created InputHandler to a Component 
@@ -13,10 +13,14 @@ public class InputHandler implements KeyListener
 	 */ 
 	
 	boolean keys[]=new boolean[256];
+	int mouseX=250;
+	int mouseY=250;
 	
 	public InputHandler(Component c) 
 	{ 
-		c.addKeyListener(this); 
+		c.addKeyListener(this);
+		//c.addMouseListener(this);
+		c.addMouseMotionListener(this);
 	} 
 
 	/** 
@@ -61,5 +65,18 @@ public class InputHandler implements KeyListener
 	/** 
 	 * Not used 
 	 */ 
-	public void keyTyped(KeyEvent e){} 
+	public void keyTyped(KeyEvent e){}
+
+	
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		this.mouseX=e.getX();
+		this.mouseY=e.getY();
+	} 
 } 

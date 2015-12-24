@@ -6,11 +6,13 @@ public class Threebject {
 		this.edges = edges;
 	}
 	public ArrayList<Point> draw(Point intercepts[]){
-		//System.out.println(intercepts);
+		/*for(int i=0; i<intercepts.length; i++)
+			System.out.print(intercepts[i]+" ");
+		System.out.println();*/
 		ArrayList<Point> p = new ArrayList<Point>();
 		for(int i=0; i<edges.length; i++){
 			if(intercepts[edges[i]]!=null){
-				p.add(intercepts[edges[i]]); //TODO: make the order correct so it's convex (maybe when you graph?)
+				p.add(intercepts[edges[i]]);
 			}
 		}
 		if(p.size()>0){

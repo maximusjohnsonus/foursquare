@@ -1,7 +1,7 @@
 
 public class Point {
 	public int dim; //p.length
-	public double x; //p[0]
+	public double x; //p[0] //Careful! These are hella convenient, but you have to make sure to update them when you do things like get shifted point
 	public double y; //p[1]
 	public double z; //p[2]
 	public double w; //p[3]
@@ -39,12 +39,58 @@ public class Point {
 	public double getCoord(int c){
 		return p[c];
 	}
-	/*public Point(double[]coords){
+	public Point(double[]coords){
 		this.p=coords;
-		dim=coords.length;
-	}*/
+		this.dim=coords.length;
+		switch(this.dim){ //populate x,y,z,w
+			case 0:
+				break;
+			case 1:
+				x=this.p[0];
+				break;
+			case 2:
+				x=this.p[0];
+				y=this.p[1];
+				break;
+			case 3:
+				x=this.p[0];
+				y=this.p[1];
+				z=this.p[2];
+				break;
+			default:
+				x=this.p[0];
+				y=this.p[1];
+				z=this.p[2];
+				w=this.p[3];
+				break;
+		}
+	}
+	public void changeCoord(int coord, double delta){
+		p[coord]+=delta;
+		switch(coord){
+			case 0:
+				x=p[0];
+				break;
+			case 1:
+				y=p[1];
+				break;
+			case 2:
+				z=p[2];
+				break;
+			case 3:
+				w=p[3];
+				break;
+		}
+	}
 	
-	boolean isClockwiseOf(Point b, Point center){ //Note: only uses x and y
+	public Point relativeTo(Point origin){
+		double newCoords[] = new double[this.p.length];
+		for(int i=0; i<newCoords.length; i++){
+			newCoords[i]=this.p[i]-origin.getCoord(i);
+		}
+		return new Point(newCoords);
+	}
+	public boolean isClockwiseOf(Point b, Point center){ //Note: only uses x and y
 		//returns true if b is clockwise of this about center, 12:00 (x=0, y>0) is the dividing line
 		if (this.x - center.x >= 0 && b.x - center.x < 0)
 			return true;
@@ -69,7 +115,31 @@ public class Point {
 		double d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
 		return d1 > d2;
 	}
+	public boolean isBetween(Point a, Point b){ //TODO: optimize?
+		/* i.x<=p0.x
+		 * p1.x<=i.x
+		 * |p0.x-i.x| + |i.x-p1.x| ≈ |p0.x-p1.x|
+		 */
+		for(int coord=0; coord<this.dim; coord++){
+			if(! (Math.abs(a.getCoord(coord)-this.getCoord(coord))+Math.abs(b.getCoord(coord)-this.getCoord(coord))<=Math.abs(a.getCoord(coord)-b.getCoord(coord))+0.0000000001)){ //0.0...01 is because doubles are the worst. You could find min/max and do some more comparisons, might be faster
+				//System.out.println("not between!");
+				return false;
+			}
+		}
+		return true;
+	}
 	
+	public boolean equals(Point p){
+		if(p.dim!=this.dim){
+			return false;
+		}
+		for(int coord=0; coord<this.dim; coord++){
+			if(p.getCoord(coord)!=this.getCoord(coord)){
+				return false;
+			}
+		}
+		return true;
+	}
 	public String toString(){
 		if(p.length==0)
 			return "{}";

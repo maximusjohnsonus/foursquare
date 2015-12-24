@@ -26,6 +26,8 @@ public class Matrix {
 		}
 	}
 	public static double[][] rref(double[][] A){ //TODO: OPTIMIZE 
+		//System.out.println("preRREF:");
+		//printMatrix(A);
 		int numRows = A.length;
 		int numCols = A[0].length;
 		int pivotRow=0;
@@ -59,6 +61,8 @@ public class Matrix {
 				multiplyRowAddToRow(A, p.x, -1*A[i][p.y], i); //kill entries above pivot by adding their negation
 			}
 		}
+		//System.out.println("postRREF:");
+		//printMatrix(A);
 		return A;
 	}
 	public static double[][] rowSwap(double[][] A, int row1, int row2){
@@ -103,6 +107,15 @@ public class Matrix {
 		} else {
 			return null;
 		}
+	}
+	public static void printMatrix(double[][] A){
+		for(int i=0; i<A.length; i++){
+			for(int j=0; j<A[0].length; j++){
+				System.out.print(A[i][j]+" ");
+			}
+			System.out.println();
+		}
+		System.out.println();
 	}
 	
 }
