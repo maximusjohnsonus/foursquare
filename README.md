@@ -26,7 +26,7 @@ First, we turn each edge (a 1D object in a 4D space) into a matrix equation of t
 
 To slice the edge, we need to have a description of the three-space with which we are slicing. We use three perpendicular vectors to do this. v1 is the unit vector defining the forward direction for the player, v2 is the unit vector defining the rightward direction, and v3 is the unit vector defining up. v1, v2, v3 are vectors in four-space. The only points the player can see (the points in the 3D slice) are in span(v1, v2, v3). Let V be the matrix [v1 v2 v3].  
 
-	We can now find the point on the edge that falls in the 3D viewing slice. We simply solve A\*(V\*y)=b. V\*y takes a 3D vector y (the vector that describes where the player sees point y) and transforms it into the four dimensional world. If V\*y solves A\*x=b, then V\*y is on the edge. To solve A\*(V\*y)=b, take rref( [A\*V b] ). A is 3×4, V is 4×3, b is 3×1, so [A\*V b] is 3×4. When rref-ed, we get a matrix of the form:  
+We can now find the point on the edge that falls in the 3D viewing slice. We simply solve A\*(V\*y)=b. V\*y takes a 3D vector y (the vector that describes where the player sees point y) and transforms it into the four dimensional world. If V\*y solves A\*x=b, then V\*y is on the edge. To solve A\*(V\*y)=b, take rref( [A\*V b] ). A is 3×4, V is 4×3, b is 3×1, so [A\*V b] is 3×4. When rref-ed, we get a matrix of the form:  
 	⎡1 0 0 a⎤  
 	⎢0 1 0 b⎥  
 	⎣0 0 1 c⎦  
