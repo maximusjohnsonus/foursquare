@@ -21,13 +21,11 @@ public class Matrix {
 			}
 			return C;
 		} else {
-			System.out.println("multiply: dimwit error. "+A.length+"×"+A[0].length+" * "+B.length+"×"+B[0].length);
+			System.err.println("multiply: dimwit error. "+A.length+"×"+A[0].length+" * "+B.length+"×"+B[0].length);
 			return null;
 		}
 	}
 	public static double[][] rref(double[][] A){ //TODO: OPTIMIZE 
-		//System.out.println("preRREF:");
-		//printMatrix(A);
 		int numRows = A.length;
 		int numCols = A[0].length;
 		int pivotRow=0;
@@ -61,8 +59,6 @@ public class Matrix {
 				multiplyRowAddToRow(A, p.x, -1*A[i][p.y], i); //kill entries above pivot by adding their negation
 			}
 		}
-		//System.out.println("postRREF:");
-		//printMatrix(A);
 		return A;
 	}
 	public static double[][] rowSwap(double[][] A, int row1, int row2){

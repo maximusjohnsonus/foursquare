@@ -122,7 +122,6 @@ public class Point {
 		 */
 		for(int coord=0; coord<this.dim; coord++){
 			if(! (Math.abs(a.getCoord(coord)-this.getCoord(coord))+Math.abs(b.getCoord(coord)-this.getCoord(coord))<=Math.abs(a.getCoord(coord)-b.getCoord(coord))+0.0000000001)){ //0.0...01 is because doubles are the worst. You could find min/max and do some more comparisons, might be faster
-				//System.out.println("not between!");
 				return false;
 			}
 		}

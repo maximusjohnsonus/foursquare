@@ -23,7 +23,7 @@ public class Fourbject {
 		this.threebjects = threebjects;
 	}
 	
-	public ArrayList<ArrayList<Point>> draw(Point origin, double viewMatrix[][]){
+	public ArrayList<Polygon> draw(Point origin, double viewMatrix[][]){
 		Point shiftedPoints[] = new Point[this.points.length]; //points relative to location of rufus
 		for(int i=0; i<shiftedPoints.length; i++){
 			shiftedPoints[i]=this.points[i].relativeTo(origin);
@@ -35,7 +35,6 @@ public class Fourbject {
 		for(int i=0; i<edges.length; i++){ //calculate intercepts with all edges //TODO: optimize?
 			
 			p0=shiftedPoints[edges[i][0]];
-			//System.out.println(p0);
 			p1=shiftedPoints[edges[i][1]];
 			double[] delta={p1.x-p0.x, p1.y-p0.y, p1.z-p0.z, p1.w-p0.w};
 			int v=0; //index of {x,y,z,w} that you use to solve for t
@@ -60,54 +59,25 @@ public class Fourbject {
 				row++;
 			}
 			double mIntercept[][] = Matrix.rref(Matrix.augment(Matrix.multiply(A, viewMatrix),b)); //rref(A*V  b)
-			
-			//Matrix.printMatrix(mIntercept);
-			
+						
 			if(mIntercept[2][2]<=1.0000000001 && mIntercept[2][2]>=0.9999999999){ //gahddam doubles
-				/*System.out.println("yay! normal matrix:");
-				for(int a=0; a<mIntercept.length; a++){
-					for(int c=0; c<mIntercept[0].length; c++){
-						System.out.print(mIntercept[a][c]+" ");
-					}
-					System.out.println();
-				}*/
 				Point newIntercept3D = new Point(mIntercept[0][3],mIntercept[1][3],mIntercept[2][3]);
 				double newIntercept4DArray[][]=Matrix.multiply(viewMatrix, new double[][]{{newIntercept3D.x},{newIntercept3D.y},{newIntercept3D.z}});
 				Point newIntercept4D = new Point(newIntercept4DArray[0][0],newIntercept4DArray[1][0], newIntercept4DArray[2][0], newIntercept4DArray[3][0]);
 				if(newIntercept4D.isBetween(p0, p1)){
 					intercepts[i]= newIntercept3D;
 				}
-			} /*else {
-				System.out.println("uh oh! weird matrix:");
-				for(int a=0; a<mIntercept.length; a++){
-					for(int c=0; c<mIntercept[0].length; c++){
-						System.out.print(mIntercept[a][c]+" ");
-					}
-					System.out.println();
-				}
-			}*/
+			}
 		}
-		/*System.out.print("intercepts: {");
-		for(int i=0; i<intercepts.length; i++){
-			if(intercepts[i]!=null)
-				System.out.print(intercepts[i]+",");
-			else
-				System.out.print("{},");
-		}
-		System.out.println("}");*/
 		
-		//System.out.println(threebjects);
-		ArrayList <ArrayList<Point>> pgons=new ArrayList <ArrayList<Point>> (0);
+		ArrayList <Polygon> pgons=new ArrayList <Polygon> (0);
 		for(Threebject t : threebjects){
-			//System.out.println("tbj:"+t);
-			ArrayList<Point> tbjPolygon = t.draw(intercepts);
-			//System.out.println(tbjPolygon==null);
-			//System.out.println("tbjPolygon:"+tbjPolygon);
+			Polygon tbjPolygon = t.draw(intercepts);
+			
 			if(tbjPolygon!=null){
 				pgons.add(tbjPolygon);
 			}
 		}
-		//System.out.println("pgons:"+pgons);
 		return pgons;
 	}
 

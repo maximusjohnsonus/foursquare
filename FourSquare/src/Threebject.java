@@ -1,21 +1,21 @@
+import java.awt.Color;
 import java.util.ArrayList;
 
 public class Threebject {
 	int edges[]; //indices of edges in Fourbject's edges[][] list
+	Color color;
 	public Threebject(int edges[]){
 		this.edges = edges;
+		this.color=new Color((int)(Math.random()*255),(int)(Math.random()*255),(int)(Math.random()*255));
 	}
-	public ArrayList<Point> draw(Point intercepts[]){
-		/*for(int i=0; i<intercepts.length; i++)
-			System.out.print(intercepts[i]+" ");
-		System.out.println();*/
-		ArrayList<Point> p = new ArrayList<Point>();
+	public Polygon draw(Point intercepts[]){
+		Polygon p = new Polygon(this.color);
 		for(int i=0; i<edges.length; i++){
 			if(intercepts[edges[i]]!=null){
-				p.add(intercepts[edges[i]]);
+				p.addPoint(intercepts[edges[i]]);
 			}
 		}
-		if(p.size()>0){
+		if(p.numPoints()>0){
 			return p;
 		} else {
 			return null;
