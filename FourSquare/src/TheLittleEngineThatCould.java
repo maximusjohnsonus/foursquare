@@ -69,7 +69,7 @@ public class TheLittleEngineThatCould extends JFrame {
 			update();
 			draw();
 
-			if(Lumberman.timeLogLevel>=1){
+			if(Lumberjack.timeLogLevel>=1){
 				System.out.println("frame time: "+( System.currentTimeMillis() - time));
 			}
 			//  delay for each frame  -   time it took for one frame 
@@ -205,11 +205,11 @@ public class TheLittleEngineThatCould extends JFrame {
 		}
 		long objTime = System.currentTimeMillis();
 		for(int i=0; i<objs.size(); i++){
-			if(Lumberman.timeLogLevel>=2){
+			if(Lumberjack.timeLogLevel>=2){
 				System.out.println("Times for obj #"+i);
 			}
 			addAllToZBuffer(objs.get(i).draw(rufus.location, rufus.viewMatrix));
-			if(Lumberman.timeLogLevel>=2){
+			if(Lumberjack.timeLogLevel>=2){
 				System.out.println("total: "+(System.currentTimeMillis()-objTime));
 				objTime = System.currentTimeMillis();
 			}
@@ -221,7 +221,7 @@ public class TheLittleEngineThatCould extends JFrame {
 			}
 		}
 		g.drawImage(backBuffer, insets.left, insets.top, this);
-		if(Lumberman.timeLogLevel>=2){
+		if(Lumberjack.timeLogLevel>=2){
 			System.out.println("Time for drawing: "+(System.currentTimeMillis()-objTime));
 		}
 		//TODO: add a hypercube that shows the direction you're looking
@@ -297,17 +297,17 @@ public class TheLittleEngineThatCould extends JFrame {
 			long taskTime=System.currentTimeMillis();
 			Color c = polygon.getColor();
 			polygon.convertToScreenCoords(fov);	//make the vertices of the polygon (which have normal coords) into screen coords (fov*y/x, fov*z/x) with depth (x) data 
-			if(Lumberman.timeLogLevel>=4){
+			if(Lumberjack.timeLogLevel>=4){
 				System.out.println("convert: "+(System.currentTimeMillis()-taskTime));
 				taskTime = System.currentTimeMillis();
 			}
 			polygon.orderPoints(); //order so the polygon is convex
-			if(Lumberman.timeLogLevel>=4){
+			if(Lumberjack.timeLogLevel>=4){
 				System.out.println("order: "+(System.currentTimeMillis()-taskTime));
 				taskTime = System.currentTimeMillis();
 			}
 			double[][] stripes = polygon.getStripes(); //make the polygon into a series of horizontal stripes 1 unit tall, with endpoints with same data as above (screenX, screenY, depth)
-			if(Lumberman.timeLogLevel>=4){
+			if(Lumberjack.timeLogLevel>=4){
 				System.out.println("getStripes: "+(System.currentTimeMillis()-taskTime));
 				taskTime = System.currentTimeMillis();
 			}
@@ -343,11 +343,11 @@ public class TheLittleEngineThatCould extends JFrame {
 					z+=dz;
 				}
 			}
-			if(Lumberman.timeLogLevel>=4){
+			if(Lumberjack.timeLogLevel>=4){
 				System.out.println("Zbuffer: "+(System.currentTimeMillis()-taskTime));
 				taskTime = System.currentTimeMillis();
 			}
-			if(Lumberman.timeLogLevel>=3){
+			if(Lumberjack.timeLogLevel>=3){
 				System.out.println("total polygon: "+(System.currentTimeMillis()-polygonTime));
 				polygonTime = System.currentTimeMillis();
 			}

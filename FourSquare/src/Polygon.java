@@ -71,6 +71,47 @@ public class Polygon {
 		return listOfStripes;
 		
 	}
+	/*public double[][] getStripes(){
+		double[][] listOfStripes = new double[(int)getYRange()][4]; //the first index + minY = yCoord, the list at each index is {x0, y0, z0, x1, y1, z1} where (x0, y0, z0) and (x1, y1, z1) are the endpoints of the stripe
+		boolean[] isInitialized=new boolean[listOfStripes.length]; //used to determine if first point has been added yet
+		double minY = getMinY();
+		for(int pointIndex=0; pointIndex<points.size(); pointIndex++){
+			Point p0=points.get(pointIndex);
+			Point p1=points.get((pointIndex+1)%points.size());
+			if(p0.y>p1.y){
+				p0=p1;
+				p1=points.get(pointIndex);
+			}
+			double x=p0.x;
+			double z=p0.z;
+			double dx=(p1.x-p0.x)/(p1.y-p0.y);
+			double dz=(p1.z-p0.z)/(p1.y-p0.y);
+			for(int screenY=(int)(p0.y-minY); screenY<(int)(p1.y-minY); screenY++){
+				if(!isInitialized[screenY]){
+					listOfStripes[screenY][0]=x;
+					listOfStripes[screenY][1]=z;
+					isInitialized[screenY]=true;
+				} else {
+					listOfStripes[screenY][2]=x;
+					listOfStripes[screenY][3]=z;
+				}
+				x+=dx;
+				z+=dz;
+			}
+		}
+		if(Lumberjack.checkStripeInitialization){
+			for(int i=0; i<isInitialized.length; i++){
+				if(!isInitialized[i]){
+					System.out.println("item "+i+" not initialized, minY="+minY);
+				}
+				if(listOfStripes[i][3]==0 && listOfStripes[i][4]==0 && listOfStripes[i][5]==0){ 
+					System.out.println("item "+i+" suspicious (0,0)");
+				}
+			}
+		}
+		return listOfStripes;
+		
+	}*/
 	
 	
 	public void addPoint(Point p){
@@ -84,18 +125,10 @@ public class Polygon {
 		double maxY=minY;
 		for(int i=1; i<points.size(); i++){
 			double pY=points.get(i).y;
-			if(pY<minY){
-				if(points.get(i).z<=0){
-					minY = -TheLittleEngineThatCould.windowHeight/2;
-				} else {
-					minY = pY;
-				}
-			} else if(pY>maxY){
-				if(points.get(i).z<=0){
-					maxY = TheLittleEngineThatCould.windowHeight/2;
-				} else {
-					maxY = pY;
-				}
+			if(pY<minY){ 
+				minY = pY;
+			} else if(pY>maxY){ 
+				maxY = pY;
 			}
 		}
 		return maxY-minY;
@@ -105,9 +138,6 @@ public class Polygon {
 		for(int i=1; i<points.size(); i++){
 			double pY=points.get(i).y;
 			if(pY<minY){ 
-				if(points.get(i).z<=0){
-					return -TheLittleEngineThatCould.windowHeight/2;
-				}
 				minY = pY;
 			}
 		}
