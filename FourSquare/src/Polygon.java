@@ -41,7 +41,7 @@ public class Polygon {
 		return new Point(xTotal/this.points.size(), yTotal/this.points.size());
 	}
 	public double[][] getStripes(){
-		double[][] listOfStripes = new double[(int)getYRange()+1][4]; //the first index + minY = yCoord, the list at each index is {x0, z0, x1, z1} where (x0, y, z0) and (x1, y, z1) are the endpoints of the stripe
+		double[][] listOfStripes = new double[(int)getYRange()][4]; //the first index + minY = yCoord, the list at each index is {x0, z0, x1, z1} where (x0, y, z0) and (x1, y, z1) are the endpoints of the stripe
 		boolean[] isInitialized=new boolean[listOfStripes.length]; //used to determine if first point has been added yet
 		double minY = getMinY();
 		for(int pointIndex=0; pointIndex<points.size(); pointIndex++){
@@ -84,10 +84,18 @@ public class Polygon {
 		double maxY=minY;
 		for(int i=1; i<points.size(); i++){
 			double pY=points.get(i).y;
-			if(pY<minY){ 
-				minY = pY;
-			} else if(pY>maxY){ 
-				maxY = pY;
+			if(pY<minY){
+				if(points.get(i).z<=0){
+					minY = -TheLittleEngineThatCould.windowHeight/2;
+				} else {
+					minY = pY;
+				}
+			} else if(pY>maxY){
+				if(points.get(i).z<=0){
+					maxY = TheLittleEngineThatCould.windowHeight/2;
+				} else {
+					maxY = pY;
+				}
 			}
 		}
 		return maxY-minY;
@@ -97,6 +105,9 @@ public class Polygon {
 		for(int i=1; i<points.size(); i++){
 			double pY=points.get(i).y;
 			if(pY<minY){ 
+				if(points.get(i).z<=0){
+					return -TheLittleEngineThatCould.windowHeight/2;
+				}
 				minY = pY;
 			}
 		}

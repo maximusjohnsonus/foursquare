@@ -13,8 +13,8 @@ public class TheLittleEngineThatCould extends JFrame {
 	boolean isRunning = true; 
 	boolean paused=false;
 	int fps = 30; 
-	int windowWidth = 500; 
-	int windowHeight = 500;
+	public static int windowWidth = 500; 
+	public static int windowHeight = 500;
 	double fov=500;
 	Robot wallE;
 	Rufus rufus;
