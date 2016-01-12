@@ -80,5 +80,29 @@ public class Fourbject {
 		}
 		return pgons;
 	}
+	
+	public boolean equals(Object o){
+		Fourbject f = (Fourbject)o;
+		if(f.points.length==this.points.length && f.edges.length==this.edges.length && f.threebjects.length==f.threebjects.length){
+			for(int pointIndex=0; pointIndex<this.points.length; pointIndex++){
+				if(!f.points[pointIndex].equals(this.points[pointIndex])){
+					return false;
+				}
+			}
+			for(int edgeIndex=0; edgeIndex<this.edges.length; edgeIndex++){
+				if(this.edges[edgeIndex][0]!=f.edges[edgeIndex][0] || this.edges[edgeIndex][1]!=f.edges[edgeIndex][1]){
+					return false;
+				}
+			}
+			for(int tbjIndex=0; tbjIndex<this.threebjects.length; tbjIndex++){
+				if(!f.threebjects[tbjIndex].equals(this.threebjects[tbjIndex])){
+					return false;
+				}
+			}
+		} else {
+			return false;
+		}
+		return true;
+	}
 
 }

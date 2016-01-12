@@ -27,6 +27,14 @@ public class TheLittleEngineThatCould extends JFrame {
 	BufferedImage backBuffer; 
 	Insets insets; 
 	InputHandler input; 
+	
+	Point lowerWorldBound = new Point(-10,-10,0,-10);
+	Point upperWorldBound = new Point(10,10,20,10);
+	boolean[][][][]world = new boolean[20][20][20][20];
+	double vJump=3; //speed of a jump
+	double vUp = 0; //how fast are you moving up
+	double gravity=-0.2; //every iteration, change vUp this much
+	boolean grounded=true; //true if we know rufus is standing on something, false if he isn't or might not be
 
 	public static void main(String[] args) { 
 		TheLittleEngineThatCould game = new TheLittleEngineThatCould(); 
@@ -43,12 +51,12 @@ public class TheLittleEngineThatCould extends JFrame {
 		} catch (AWTException e1) {
 			e1.printStackTrace();
 		}
-		wallE.mouseMove(this.getLocationOnScreen().x+this.windowWidth/2, this.getLocationOnScreen().y+this.windowHeight/2); //move cursor to center
+		wallE.mouseMove(this.getLocationOnScreen().x+windowWidth/2, this.getLocationOnScreen().y+windowHeight/2); //move cursor to center
 		this.setCursor(this.getToolkit().createCustomCursor( new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB ), new java.awt.Point(), null ) ); //hide cursor
 		
 		//objs.add(new Fourbject(new Point[]{new Point(3,-1,-1,-1),new Point(3,-1,1,-1),new Point(3,1,1,-1),new Point(3,1,-1,-1),new Point(3,-1,-1,1),new Point(3,-1,1,1),new Point(3,1,1,1),new Point(3,1,-1,1)},new int[][]{{0,1},{1,2},{2,3},{3,0},{4,5},{5,6},{6,7},{7,4},{0,4},{1,5},{2,6},{3,7}},new Threebject[]{new Threebject(new int[]{0,1,2,3,4,5,6,7,8,9,10,11})}));
-		objs.add(new Tesseract(new Point(3,-1,-1,-1),new Point(5,1,2,3)));
-		objs.add(new Tesseract(new Point(-3,2,1,-0.5),new Point(-6,5,0.5,1)));
+		//objs.add(new Tesseract(new Point(3,-1,-1,-1),new Point(5,1,2,3)));
+		//objs.add(new Tesseract(new Point(-3,2,1,-0.5),new Point(-6,5,0.5,1)));
 		Point p[]= {new Point(1/Math.sqrt(6),4+1/Math.sqrt(3),1,1/Math.sqrt(10)),
 					new Point(1/Math.sqrt(6),4+1/Math.sqrt(3),-1,1/Math.sqrt(10)),
 					new Point(1/Math.sqrt(6),4-2/Math.sqrt(3),0,1/Math.sqrt(10)),
@@ -61,7 +69,7 @@ public class TheLittleEngineThatCould extends JFrame {
 						new Threebject(new int[]{0,1,3,4,6,8}), //all w/o point 3
 						new Threebject(new int[]{0,1,2,4,5,7})};//all w/o point 4
 		
-		objs.add(new Fourbject(p,edg,t)); //5-cell
+		//objs.add(new Fourbject(p,edg,t)); //5-cell
 
 		while(isRunning) { 
 			long time = System.currentTimeMillis(); 
@@ -102,42 +110,88 @@ public class TheLittleEngineThatCould extends JFrame {
 		
 	} 
 
-	void update() { 
-		/*if(rufus.pov.z!=0 || vUp!=0){
-			rufus.pov.changeZ(vUp);
-			vUp-=.5;
-			if(rufus.pov.z<0){
-				rufus.pov.z=0;
-				vUp=0;
+	void update() {
+		if(Lumberjack.logPosition){
+			System.out.println("rufus.location: "+rufus.location);
+		}
+		if(Lumberjack.logVUp){
+			System.out.println("vUp: "+vUp);
+		}
+		
+		if (input.isKeyDown(KeyEvent.VK_W)) {
+			Point newPos=rufus.getForwards(1);
+			if(!this.isCollision(newPos)){
+				rufus.setLocation(newPos);
+				grounded=false;
+				if(Lumberjack.logGrounded){
+					System.out.println("grounded is now false");
+				}
 			}
-		}*/
-		if (input.isKeyDown(KeyEvent.VK_W)) { 
-			rufus.moveForwards(1); 
 		}
 		if (input.isKeyDown(KeyEvent.VK_S)) { 
-			rufus.moveForwards(-1); 
+			Point newPos=rufus.getForwards(-1);
+			if(!this.isCollision(newPos)){
+				rufus.setLocation(newPos);
+				grounded=false;
+				if(Lumberjack.logGrounded){
+					System.out.println("grounded is now false");
+				}
+			}		
 		}
 		if (input.isKeyDown(KeyEvent.VK_D)) { 
-			rufus.moveSideways(1); 
+			Point newPos=rufus.getSideways(1);
+			if(!this.isCollision(newPos)){
+				rufus.setLocation(newPos);
+				grounded=false;
+				if(Lumberjack.logGrounded){
+					System.out.println("grounded is now false");
+				}
+			}		
 		}
 		if (input.isKeyDown(KeyEvent.VK_A)) { 
-			rufus.moveSideways(-1); 
+			Point newPos=rufus.getSideways(-1);
+			if(!this.isCollision(newPos)){
+				rufus.setLocation(newPos);
+				grounded=false;
+				if(Lumberjack.logGrounded){
+					System.out.println("grounded is now false");
+				}
+			}
 		}
-		if (input.isKeyDown(KeyEvent.VK_SPACE)) { 
-			rufus.moveUpwards(1);
-			//rufus.stepZ(1); 
-		}
-		if (input.isKeyDown(KeyEvent.VK_SHIFT)) { 
-			rufus.moveUpwards(-1);
-			//rufus.stepZ(-1); 
-		}
-		if (input.isKeyDown(KeyEvent.VK_R)) { 
+		/*if (input.isKeyDown(KeyEvent.VK_R)) { 
 			rufus.stepW(1); 
 		}
 		if (input.isKeyDown(KeyEvent.VK_F)) { 
 			rufus.stepW(-1); 
+		}*/
+		if(!grounded){
+			if(rufus.location.z-rufus.height<=lowerWorldBound.z || this.isCollision(rufus.getUpwards(-1))){ //TODO: find a better way to check if rufus is grounded
+				grounded=true;
+				if(Lumberjack.logGrounded){
+					System.out.println("grounded is now true");
+				}
+			}
 		}
-		
+		if (grounded && input.isKeyDown(KeyEvent.VK_SPACE)) { 
+			vUp=vJump;
+		}
+		if(!grounded || vUp!=0){
+			Point newPos=rufus.getUpwards(vUp);
+			if(!this.isCollision(newPos)){
+				rufus.setLocation(newPos);
+				grounded=false;
+			} else if(vUp>0){
+				vUp=0;
+			} else {
+				//rufus.location.setCoord(3, (int)rufus.location.z);
+				vUp=0;
+			}
+			vUp+=gravity;
+			if(rufus.location.z-rufus.height<=lowerWorldBound.z){
+				rufus.location.z=lowerWorldBound.z+rufus.height;
+				vUp=0;
+			}
+		}
 		
 		if (input.isKeyDown(KeyEvent.VK_LEFT)) { 
 			rufus.rotateXWViewPlane(-1); 
@@ -172,18 +226,34 @@ public class TheLittleEngineThatCould extends JFrame {
 				catch(Exception e){}
 			}
 			this.setCursor(this.getToolkit().createCustomCursor( new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB ), new java.awt.Point(), null ) ); //hide cursor
-			wallE.mouseMove(this.getLocationOnScreen().x+this.windowWidth/2, this.getLocationOnScreen().y+this.windowHeight/2);
+			wallE.mouseMove(this.getLocationOnScreen().x+windowWidth/2, this.getLocationOnScreen().y+windowHeight/2);
 
 		}
-		if((input.mouseX!=this.windowWidth/2 || input.mouseY!=this.windowHeight/2) && !paused){
-			rufus.rotateXYViewPlane(input.mouseX-this.windowWidth/2);
-			rufus.rotateForwardUpViewPlane(this.windowHeight/2-input.mouseY);
-			wallE.mouseMove(this.getLocationOnScreen().x+this.windowWidth/2, this.getLocationOnScreen().y+this.windowHeight/2);
+		if((input.mouseX!=windowWidth/2 || input.mouseY!=windowHeight/2) && !paused){
+			rufus.rotateXYViewPlane(input.mouseX-windowWidth/2);
+			rufus.rotateForwardUpViewPlane(windowHeight/2-input.mouseY);
+			wallE.mouseMove(this.getLocationOnScreen().x+windowWidth/2, this.getLocationOnScreen().y+windowHeight/2);
+			if(Lumberjack.logViewMatrix){
+				Matrix.printMatrix(rufus.viewMatrix);
+			}
 		}
-		/*if (input.isKeyDown(KeyEvent.VK_SPACE)) { 
-			vUp=5;
-		}*/
 		
+		if(input.mouseDown){
+			double magnitude = Math.sqrt(rufus.viewMatrix[0][0]*rufus.viewMatrix[0][0]+rufus.viewMatrix[1][0]*rufus.viewMatrix[1][0]+rufus.viewMatrix[2][0]*rufus.viewMatrix[2][0]+rufus.viewMatrix[3][0]*rufus.viewMatrix[3][0]);
+			Point lower = new Point((int)(rufus.location.x+rufus.viewMatrix[0][0]/magnitude), (int)(rufus.location.y+rufus.viewMatrix[1][0]/magnitude), (int)(rufus.location.z+rufus.viewMatrix[2][0]/magnitude), (int)(rufus.location.w+rufus.viewMatrix[3][0]/magnitude));
+			if(!world[(int)(lower.x-lowerWorldBound.x)][(int)(lower.y-lowerWorldBound.y)][(int)(lower.z-lowerWorldBound.z)][(int)(lower.w-lowerWorldBound.w)] && !((int)rufus.location.x==lower.x && (int)rufus.location.y==lower.y && (int)rufus.location.z==lower.z && (int)rufus.location.w==lower.w)){
+				objs.add(new Tesseract(new Point(lower.x+1,lower.y+1,lower.z+1,lower.w+1), lower));
+				world[(int)(lower.x-lowerWorldBound.x)][(int)(lower.y-lowerWorldBound.y)][(int)(lower.z-lowerWorldBound.z)][(int)(lower.w-lowerWorldBound.w)]=true;
+			}
+		}
+		if(input.isKeyDown(KeyEvent.VK_E)){
+			double magnitude = Math.sqrt(rufus.viewMatrix[0][0]*rufus.viewMatrix[0][0]+rufus.viewMatrix[1][0]*rufus.viewMatrix[1][0]+rufus.viewMatrix[2][0]*rufus.viewMatrix[2][0]+rufus.viewMatrix[3][0]*rufus.viewMatrix[3][0]);
+			Point lower = new Point((int)(rufus.location.x+rufus.viewMatrix[0][0]/magnitude), (int)(rufus.location.y+rufus.viewMatrix[1][0]/magnitude), (int)(rufus.location.z+rufus.viewMatrix[2][0]/magnitude), (int)(rufus.location.w+rufus.viewMatrix[3][0]/magnitude));
+			if(world[(int)(lower.x-lowerWorldBound.x)][(int)(lower.y-lowerWorldBound.y)][(int)(lower.z-lowerWorldBound.z)][(int)(lower.w-lowerWorldBound.w)]){
+				objs.remove(new Tesseract(lower, new Point(lower.x+1,lower.y+1,lower.z+1,lower.w+1)));
+				world[(int)(lower.x-lowerWorldBound.x)][(int)(lower.y-lowerWorldBound.y)][(int)(lower.z-lowerWorldBound.z)][(int)(lower.w-lowerWorldBound.w)]=false;
+			}
+		}
 	} 
 
 	void draw() {
@@ -289,6 +359,15 @@ public class TheLittleEngineThatCould extends JFrame {
 		//isRunning=false;
 	} 
 	
+	private boolean isCollision(Point p){
+		if((int)(p.x-lowerWorldBound.x)<0 || (int)(p.y-lowerWorldBound.y)<0 || (int)(p.z-rufus.height-lowerWorldBound.z)<0 || (int)(p.w-lowerWorldBound.w)<0
+				|| (int)(p.x-lowerWorldBound.x)>=world.length || (int)(p.y-lowerWorldBound.y)>=world[0].length || (int)(p.z-rufus.height-lowerWorldBound.z)>=world[0][0].length || (int)(p.w-lowerWorldBound.w)>=world[0][0][0].length){
+			System.err.println("Collision check out of bounds: "+(int)(p.x-lowerWorldBound.x)+", "+(int)(p.y-lowerWorldBound.y)+", "+(int)(p.z-rufus.height-lowerWorldBound.z)+", "+(int)(p.w-lowerWorldBound.w));
+			return true;
+		}
+		return world[(int)(p.x-lowerWorldBound.x)][(int)(p.y-lowerWorldBound.y)][(int)(p.z-rufus.height-lowerWorldBound.z)][(int)(p.w-lowerWorldBound.w)];
+	}
+	
 	//Z-buffer rendering
 	//I took a lot of ideas from https://github.com/FlightOfGrey/3D-z-buffer/tree/master/src
 	private void addAllToZBuffer(ArrayList<Polygon> polygons) {
@@ -313,7 +392,7 @@ public class TheLittleEngineThatCould extends JFrame {
 			}
 			int minY=(int)polygon.getMinY();
 			
-			for(int stripeCount = (minY>-windowHeight/2 ? 0 : -windowHeight/2-minY+1) /*this is to not go through stripes above the screen*/
+			for(int stripeCount = (minY>-windowHeight/2 ? 0 : -1/*-windowHeight/2-minY+1*/) /*this is to not go through stripes above the screen*/
 					; stripeCount<stripes.length && stripeCount+minY<=windowHeight/2 /*this is to not go through stripes below the screen*/
 					; stripeCount++){
 				int x, maxX, y;
@@ -355,7 +434,7 @@ public class TheLittleEngineThatCould extends JFrame {
 	}
 
 
-	private ArrayList<ArrayList<Point>> orderFaces(ArrayList<ArrayList<Point>> faces){ //returns the faces in the correct order for displaying, back to front
+	/*private ArrayList<ArrayList<Point>> orderFaces(ArrayList<ArrayList<Point>> faces){ //returns the faces in the correct order for displaying, back to front
 		for(int sortCount=1; sortCount<faces.size(); sortCount++){ //the problem with doing a sort and not comparing every face to every other face is that order isn't very transitive. e.g. these: _/- (the / extends beyong the _). _ is in front of -, but in the ordering should be the furthest behind
 			ArrayList<Point> hold=faces.get(sortCount); //TODO: optimize?
 			int backCount=sortCount;
@@ -401,14 +480,14 @@ public class TheLittleEngineThatCould extends JFrame {
 		}
 		if(bDmin>=aDmax){ //if the closest point of b is further than the farthest point of a
 			return false; //then b is behind a
-		}*/
+		}* /
 		//TODO: actually implement the majority of the algorithm
 		if(aXmax==bXmax){ //this is just a stopgap until the above is completed
 			return aXmin>bXmin;
 		} else {
 			return aXmax>bXmax;
 		}
-	}
+	}*/
 }
 	
 

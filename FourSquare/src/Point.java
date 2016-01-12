@@ -82,6 +82,23 @@ public class Point {
 				break;
 		}
 	}
+	public void setCoord(int coord, double newValue){
+		p[coord]=newValue;
+		switch(coord){
+			case 0:
+				x=p[0];
+				break;
+			case 1:
+				y=p[1];
+				break;
+			case 2:
+				z=p[2];
+				break;
+			case 3:
+				w=p[3];
+				break;
+		}
+	}
 	
 	public Point relativeTo(Point origin){
 		double newCoords[] = new double[this.p.length];

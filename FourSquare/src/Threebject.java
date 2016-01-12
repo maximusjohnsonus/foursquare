@@ -21,6 +21,19 @@ public class Threebject {
 			return null;
 		}
 	}
+	
+	public boolean equals(Threebject t){
+		if(this.edges.length==t.edges.length){
+			for(int edgeIndex=0; edgeIndex<this.edges.length; edgeIndex++){
+				if(this.edges[edgeIndex]!=t.edges[edgeIndex]){
+					return false;
+				}
+			}
+		} else {
+			return false;
+		}
+		return true;
+	}
 	public String toString(){
 		if(edges.length==0)
 			return "{}";

@@ -15,7 +15,7 @@ public class Polygon {
 	
 	public void convertToScreenCoords(double fov){ //make the vertices of the polygon (which have normal coords) into screen coords (fov*y/x, fov*z/x) with depth (x) data 
 		for(int i=0; i<points.size(); i++){
-			Point oldPt = points.get(i);
+			Point oldPt = points.get(i);			
 			points.set(i, new Point((fov*oldPt.y/Math.abs(oldPt.x)), (fov*oldPt.z/Math.abs(oldPt.x)), oldPt.x)); //TODO: the abs(x) works but only doing the end points isn't quite right, maybe only get screencoords later?
 		}
 	}
@@ -55,7 +55,12 @@ public class Polygon {
 			double z=p0.z;
 			double dx=(p1.x-p0.x)/(p1.y-p0.y);
 			double dz=(p1.z-p0.z)/(p1.y-p0.y);
-			for(int y=(int)(p0.y-minY); y<(int)(p1.y-minY); y++){
+			if(p0.y<minY){
+				x+=(minY-p0.y)*dx;
+				z+=(minY-p0.y)*dz;
+				p0=new Point(p0.x, minY, p0.z);
+			}
+			for(int y=(int)(p0.y-minY); y<listOfStripes.length && y<(int)(p1.y-minY); y++){
 				if(!isInitialized[y]){
 					listOfStripes[y][0]=x;
 					listOfStripes[y][1]=z;
@@ -63,37 +68,6 @@ public class Polygon {
 				} else {
 					listOfStripes[y][2]=x;
 					listOfStripes[y][3]=z;
-				}
-				x+=dx;
-				z+=dz;
-			}
-		}
-		return listOfStripes;
-		
-	}
-	/*public double[][] getStripes(){
-		double[][] listOfStripes = new double[(int)getYRange()][4]; //the first index + minY = yCoord, the list at each index is {x0, y0, z0, x1, y1, z1} where (x0, y0, z0) and (x1, y1, z1) are the endpoints of the stripe
-		boolean[] isInitialized=new boolean[listOfStripes.length]; //used to determine if first point has been added yet
-		double minY = getMinY();
-		for(int pointIndex=0; pointIndex<points.size(); pointIndex++){
-			Point p0=points.get(pointIndex);
-			Point p1=points.get((pointIndex+1)%points.size());
-			if(p0.y>p1.y){
-				p0=p1;
-				p1=points.get(pointIndex);
-			}
-			double x=p0.x;
-			double z=p0.z;
-			double dx=(p1.x-p0.x)/(p1.y-p0.y);
-			double dz=(p1.z-p0.z)/(p1.y-p0.y);
-			for(int screenY=(int)(p0.y-minY); screenY<(int)(p1.y-minY); screenY++){
-				if(!isInitialized[screenY]){
-					listOfStripes[screenY][0]=x;
-					listOfStripes[screenY][1]=z;
-					isInitialized[screenY]=true;
-				} else {
-					listOfStripes[screenY][2]=x;
-					listOfStripes[screenY][3]=z;
 				}
 				x+=dx;
 				z+=dz;
@@ -110,9 +84,7 @@ public class Polygon {
 			}
 		}
 		return listOfStripes;
-		
-	}*/
-	
+	}
 	
 	public void addPoint(Point p){
 		points.add(p);
@@ -131,15 +103,31 @@ public class Polygon {
 				maxY = pY;
 			}
 		}
+		if(minY<=-TheLittleEngineThatCould.windowHeight/2){
+			minY=-TheLittleEngineThatCould.windowHeight/2+1;
+		} else if(minY>TheLittleEngineThatCould.windowHeight/2){
+			minY=TheLittleEngineThatCould.windowHeight/2;
+		}
+		if(maxY<=-TheLittleEngineThatCould.windowHeight/2){
+			maxY=-TheLittleEngineThatCould.windowHeight/2+1;
+		} else if(maxY>TheLittleEngineThatCould.windowHeight/2){
+			maxY=TheLittleEngineThatCould.windowHeight/2;
+		}
+		if((int)(maxY-minY)<0){
+			System.err.println("Negative Y Range: minY:"+minY+", maxY:"+maxY);
+		}
 		return maxY-minY;
 	}
 	public double getMinY(){
 		double minY=points.get(0).y;
 		for(int i=1; i<points.size(); i++){
 			double pY=points.get(i).y;
-			if(pY<minY){ 
+			if(pY<minY){
 				minY = pY;
 			}
+		}
+		if(minY<=-TheLittleEngineThatCould.windowHeight/2){
+			return -TheLittleEngineThatCould.windowHeight/2+1;
 		}
 		return minY;
 	}

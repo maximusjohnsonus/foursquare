@@ -1,12 +1,13 @@
 
 public class Rufus {
 	Point location; //4-space
+	double height=0.5; //distance from point to check collisions to point to view things from
 	double viewStep = 0.01;
 	double step = 0.1;
 	double viewMatrix[][]; //4×3, [ forward right up ] (those three are column unit vectors)
 	
 	public Rufus(){
-		this.location=new Point(0,0,0,0);
+		this.location=new Point(0,0,height,0);
 		this.viewMatrix = new double[][]{{1,0,0},{0,1,0},{0,0,1},{0,0,0}};
 
 	}
@@ -14,23 +15,46 @@ public class Rufus {
 		this.location=location;
 		this.viewMatrix = viewMatrix;
 	}
+	public void setLocation(Point location){
+		this.location = location;
+	}
+	public Point getForwards(double numSteps){
+		double magnitude = Math.sqrt(viewMatrix[0][0]*viewMatrix[0][0]+viewMatrix[1][0]*viewMatrix[1][0]+viewMatrix[3][0]*viewMatrix[3][0]);
+		return new Point(
+				location.x+numSteps*step*viewMatrix[0][0]/magnitude,
+				location.y+numSteps*step*viewMatrix[1][0]/magnitude,
+				location.z,
+				location.w+numSteps*step*viewMatrix[3][0]/magnitude);
+	}
+	public Point getSideways(double numSteps){
+		double magnitude = Math.sqrt(viewMatrix[0][1]*viewMatrix[0][1]+viewMatrix[1][1]*viewMatrix[1][1]+viewMatrix[3][1]*viewMatrix[3][1]);
+		return new Point(
+				location.x+numSteps*step*viewMatrix[0][1]/magnitude,
+				location.y+numSteps*step*viewMatrix[1][1]/magnitude,
+				location.z,
+				location.w+numSteps*step*viewMatrix[3][1]/magnitude);
+	}
+	public Point getUpwards(double numSteps){
+		return new Point(
+				location.x,
+				location.y,
+				location.z+numSteps*step,
+				location.w);
+	}
 	public void moveForwards(double numSteps){
-		location.changeCoord(0,numSteps*step*viewMatrix[0][0]); //change x
-		location.changeCoord(1,numSteps*step*viewMatrix[1][0]); //change y
-		location.changeCoord(2,numSteps*step*viewMatrix[2][0]); //change z
-		location.changeCoord(3,numSteps*step*viewMatrix[3][0]); //change w
+		double magnitude = Math.sqrt(viewMatrix[0][1]*viewMatrix[0][1]+viewMatrix[1][1]*viewMatrix[1][1]+viewMatrix[3][1]*viewMatrix[3][1]);
+		location.changeCoord(0,numSteps*step*viewMatrix[0][0]/magnitude); //change x
+		location.changeCoord(1,numSteps*step*viewMatrix[1][0]/magnitude); //change y
+		location.changeCoord(3,numSteps*step*viewMatrix[3][0]/magnitude); //change w
 	}
 	public void moveSideways(double numSteps){
-		location.changeCoord(0,numSteps*step*viewMatrix[0][1]); //change x
-		location.changeCoord(1,numSteps*step*viewMatrix[1][1]); //change y
-		location.changeCoord(2,numSteps*step*viewMatrix[2][1]); //change z
-		location.changeCoord(3,numSteps*step*viewMatrix[3][1]); //change w
+		double magnitude = Math.sqrt(viewMatrix[0][1]*viewMatrix[0][1]+viewMatrix[1][1]*viewMatrix[1][1]+viewMatrix[3][1]*viewMatrix[3][1]);
+		location.changeCoord(0,numSteps*step*viewMatrix[0][1]/magnitude); //change x
+		location.changeCoord(1,numSteps*step*viewMatrix[1][1]/magnitude); //change y
+		location.changeCoord(3,numSteps*step*viewMatrix[3][1]/magnitude); //change w
 	}
 	public void moveUpwards(double numSteps){
-		location.changeCoord(0,numSteps*step*viewMatrix[0][2]); //change x
-		location.changeCoord(1,numSteps*step*viewMatrix[1][2]); //change y
-		location.changeCoord(2,numSteps*step*viewMatrix[2][2]); //change z
-		location.changeCoord(3,numSteps*step*viewMatrix[3][2]); //change w
+		location.changeCoord(2,numSteps*step); //change z
 	}
 	public void moveForwardsXY(double numSteps){ //Note: this and sidewaysXY only move in the xy plane
 		double magnitude=Math.sqrt(viewMatrix[0][0]*viewMatrix[0][0]+viewMatrix[1][0]*viewMatrix[1][0]); //magnitude of forwards vector in xy-plane
@@ -83,5 +107,4 @@ public class Rufus {
 
 			}, viewMatrix);
 	}
-
 }
