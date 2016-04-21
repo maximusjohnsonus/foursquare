@@ -43,7 +43,17 @@ public class Point {
 		this.p=coords;
 		this.dim=coords.length;
 		switch(this.dim){ //populate x,y,z,w
+			default:
+				w=this.p[3];
+			case 3:
+				z=this.p[2];
+			case 2:
+				y=this.p[1];
+			case 1:
+				x=this.p[0];
 			case 0:
+				break;
+			/*case 0:
 				break;
 			case 1:
 				x=this.p[0];
@@ -62,11 +72,28 @@ public class Point {
 				y=this.p[1];
 				z=this.p[2];
 				w=this.p[3];
-				break;
+				break;*/
 		}
 	}
 	public void changeCoord(int coord, double delta){
 		p[coord]+=delta;
+		switch(coord){
+			case 0:
+				x=p[0];
+				break;
+			case 1:
+				y=p[1];
+				break;
+			case 2:
+				z=p[2];
+				break;
+			case 3:
+				w=p[3];
+				break;
+		}
+	}
+	public void setCoord(int coord, double newCoord){
+		p[coord]=newCoord;
 		switch(coord){
 			case 0:
 				x=p[0];
@@ -87,6 +114,13 @@ public class Point {
 		double newCoords[] = new double[this.p.length];
 		for(int i=0; i<newCoords.length; i++){
 			newCoords[i]=this.p[i]-origin.getCoord(i);
+		}
+		return new Point(newCoords);
+	}
+	public static Point addPoints(Point a, Point b){
+		double newCoords[] = new double[a.dim];
+		for(int i=0; i<newCoords.length; i++){
+			newCoords[i]=a.getCoord(i)+b.getCoord(i);
 		}
 		return new Point(newCoords);
 	}
@@ -113,6 +147,31 @@ public class Point {
 		// check which point is closer to the center
 		double d1 = (this.x - center.x) * (this.x - center.x) + (this.y - center.y) * (this.y - center.y);
 		double d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
+		return d1 > d2;
+	}
+	public boolean isYZClockwiseOf(Point b, Point center){
+		//returns true if b is clockwise of this about center, 12:00 (y=0, z>0) is the dividing line
+		if (this.y - center.y >= 0 && b.y - center.y < 0)
+			return true;
+		if (this.y - center.y < 0 && b.y - center.y >= 0)
+			return false;
+		if (this.y - center.y == 0 && b.y - center.y == 0) {
+			if (this.z - center.z >= 0 || b.z - center.z >= 0)
+				return this.z > b.z;
+				return b.z > this.z;
+		}
+
+		// compute the cross product of vectors (center -> a) x (center -> b)
+		double det = (this.y - center.y) * (b.z - center.z) - (b.y - center.y) * (this.z - center.z);
+		if (det < 0)
+			return true;
+		if (det > 0)
+			return false;
+
+		// this and b are on the same line from the center
+		// check which point is closer to the center
+		double d1 = (this.y - center.y) * (this.y - center.y) + (this.z - center.z) * (this.z - center.z);
+		double d2 = (b.y - center.y) * (b.y - center.y) + (b.z - center.z) * (b.z - center.z);
 		return d1 > d2;
 	}
 	public boolean isBetween(Point a, Point b){ //TODO: optimize?

@@ -12,11 +12,36 @@ public class Polygon {
 		this.points = points;
 		this.color=new Color((int)Math.random()*255,(int)Math.random()*255,(int)Math.random()*255);
 	}
-	
+	public void clipPoints(double fov, int windowWidth, int windowHeight){
+		for(int i=0; i<points.size(); i++){
+			Point oldPt = points.get(i);
+			if(oldPt.x<=0 || Math.abs(fov*oldPt.y/oldPt.x)>windowWidth/2 || Math.abs(fov*oldPt.z/oldPt.x)>windowHeight/2){ //if point will be off screen, replace it with 2 points on screen edge, or delete if neighbors are off-screen too
+				Point prevPt = points.get((i-1+points.size())%points.size());
+				Point nextPt = points.get((i+1)%points.size());
+				boolean prevOff = Math.abs(fov*prevPt.y/prevPt.x)>windowWidth/2 || Math.abs(fov*prevPt.z/prevPt.x)>windowHeight/2;
+				boolean nextOff = Math.abs(fov*nextPt.y/nextPt.x)>windowWidth/2 || Math.abs(fov*nextPt.z/nextPt.x)>windowHeight/2;
+				if(prevOff && nextOff){ //if this point and both neighbors are off the screen, kill this point
+					points.remove(i);
+					i--;
+				} else {
+					if(!prevOff){
+						
+					}
+					if(!nextOff){
+						
+					}
+				}
+				
+			} else {
+				points.set(i, new Point((fov*oldPt.y/Math.abs(oldPt.x)), (fov*oldPt.z/Math.abs(oldPt.x)), oldPt.x)); //TODO: the abs(x) works but only doing the end points isn't quite right, maybe only get screencoords later?
+			}
+		}
+	}
 	public void convertToScreenCoords(double fov){ //make the vertices of the polygon (which have normal coords) into screen coords (fov*y/x, fov*z/x) with depth (x) data 
 		for(int i=0; i<points.size(); i++){
 			Point oldPt = points.get(i);
-			points.set(i, new Point((fov*oldPt.y/Math.abs(oldPt.x)), (fov*oldPt.z/Math.abs(oldPt.x)), oldPt.x)); //TODO: the abs(x) works but only doing the end points isn't quite right, maybe only get screencoords later?
+			//points.set(i, new Point((fov*oldPt.y/Math.abs(oldPt.x)), (fov*oldPt.z/Math.abs(oldPt.x)), oldPt.x)); //TODO: the abs(x) works but only doing the end points isn't quite right, maybe only get screencoords later?
+			points.set(i, new Point(fov*Math.atan(oldPt.y/oldPt.x), fov*Math.atan(oldPt.z/oldPt.x), oldPt.x)); //TODO: the abs(x) works but only doing the end points isn't quite right, maybe only get screencoords later?
 		}
 	}
 	public void orderPoints(){
@@ -39,6 +64,27 @@ public class Polygon {
 			yTotal+=point.y;
 		}
 		return new Point(xTotal/this.points.size(), yTotal/this.points.size());
+	}
+	public void orderPointsYZ(){
+		Point center = this.getYZCenter();
+		for(int sortCount=1; sortCount<this.points.size(); sortCount++){ //insertion sort points by clockwise order //TODO: optimize?
+			Point hold=this.points.get(sortCount);						 //so that they make a nice convex polygon
+			int backCount=sortCount;
+			while(backCount>0 && this.points.get(backCount-1).isYZClockwiseOf(hold, center)){
+				this.points.set(backCount, this.points.get(backCount-1));
+				backCount--;
+			}
+			this.points.set(backCount, hold);
+		}
+	}
+	public Point getYZCenter(){
+		double yTotal=0;
+		double zTotal=0;
+		for(Point point:this.points){
+			yTotal+=point.y;
+			zTotal+=point.z;
+		}
+		return new Point(0, yTotal/this.points.size(), zTotal/this.points.size());
 	}
 	public double[][] getStripes(){
 		double[][] listOfStripes = new double[(int)getYRange()][4]; //the first index + minY = yCoord, the list at each index is {x0, z0, x1, z1} where (x0, y, z0) and (x1, y, z1) are the endpoints of the stripe
@@ -197,5 +243,15 @@ public class Polygon {
 	
 	public Color getColor(){
 		return this.color;
+	}
+	public void setColor(Color c){
+		this.color=c;
+	}
+	public String toString(){
+		String ret="";
+		for(Point p:this.points){
+			ret+=p.toString()+",";
+		}
+		return ret;
 	}
 }

@@ -1,5 +1,7 @@
-
+import java.awt.Color;
 public class Tesseract extends Fourbject {
+	Point nearPoint;
+	Point farPoint;
 	static int edges[][] = {{0,1},{0,2},{1,3},{2,3},{0,4},{1,5},{4,5},{2,6},{4,6},{3,7},{5,7},{6,7},{0,8},{1,9},{8,9},{2,10},{8,10},{3,11},{9,11},{10,11},{4,12},{8,12},{5,13},{9,13},{12,13},{6,14},{10,14},{12,14},{7,15},{11,15},{13,15},{14,15}};
 	static Threebject tbj[]= {new Threebject(new int []{0,1,2,3,4,5,6,7,8,9,10,11}), //x=0
 			new Threebject(new int []{14,16,18,19,21,23,24,26,27,29,30,31}), //x=1
@@ -10,15 +12,38 @@ public class Tesseract extends Fourbject {
 			new Threebject(new int []{1,4,7,8,12,15,16,20,21,25,26,27}), //w=0
 			new Threebject(new int []{2,5,9,10,13,17,18,22,23,28,29,30})}; //w=1
 	
-	public Tesseract(Point corner, Point farCorner){
+	public Tesseract(Point nearPoint, Point farPoint){
 		super();
+		this.nearPoint = nearPoint;
+		this.farPoint = farPoint;
 		int index=0;
 		Point p[]= new Point[16];
 		for(int i=0; i<=1; i++){ 
 			for(int j=0; j<=1; j++){
 				for(int k=0; k<=1; k++){
 					for(int l=0; l<=1; l++){
-						p[index]=new Point(corner.x+i*(farCorner.x-corner.x), corner.y+j*(farCorner.y-corner.y), corner.z+k*(farCorner.z-corner.z), corner.w+l*(farCorner.w-corner.w));
+						p[index]=new Point(nearPoint.x+i*(farPoint.x-nearPoint.x), nearPoint.y+j*(farPoint.y-nearPoint.y), nearPoint.z+k*(farPoint.z-nearPoint.z), nearPoint.w+l*(farPoint.w-nearPoint.w));
+						index++;
+					}
+				}
+			}
+		}
+		
+		this.setEdges(edges);
+		this.setPoints(p);
+		this.setThreebjects(tbj);		
+	}
+	public Tesseract(Point nearPoint, Point farPoint, Color c){
+		super();
+		this.nearPoint = nearPoint;
+		this.farPoint = farPoint;
+		int index=0;
+		Point p[]= new Point[16];
+		for(int i=0; i<=1; i++){ 
+			for(int j=0; j<=1; j++){
+				for(int k=0; k<=1; k++){
+					for(int l=0; l<=1; l++){
+						p[index]=new Point(nearPoint.x+i*(farPoint.x-nearPoint.x), nearPoint.y+j*(farPoint.y-nearPoint.y), nearPoint.z+k*(farPoint.z-nearPoint.z), nearPoint.w+l*(farPoint.w-nearPoint.w));
 						index++;
 					}
 				}
@@ -28,7 +53,9 @@ public class Tesseract extends Fourbject {
 		this.setEdges(edges);
 		this.setPoints(p);
 		this.setThreebjects(tbj);
-		
+		this.setColor(c);
 	}
-
+	public boolean contains(Point p){
+		return p.x>=nearPoint.x && p.x<=farPoint.x && p.y>=nearPoint.y && p.y<=farPoint.y && p.z>=nearPoint.z && p.z<=farPoint.z && p.w>=nearPoint.w && p.w<=farPoint.w;
+	}
 }

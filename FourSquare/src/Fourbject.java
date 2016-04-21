@@ -1,14 +1,22 @@
 import java.util.ArrayList;
+import java.awt.Color;
 
 public class Fourbject {
 	Point points[]; //all points in 4bject
 	int edges[][]; //n×2, pairs of indices of points in points[]
 	Threebject threebjects[]; //set of 3D "faces" of 4bject
+	Color color;
 	
 	public Fourbject(Point points[], int edges[][], Threebject threebjects[]){
 		this.points = points;
 		this.edges = edges;
 		this.threebjects = threebjects;
+	}
+	public Fourbject(Point points[], int edges[][], Threebject threebjects[], Color c){
+		this.points = points;
+		this.edges = edges;
+		this.threebjects = threebjects;
+		this.color=c;
 	}
 	public Fourbject(){
 		
@@ -21,6 +29,9 @@ public class Fourbject {
 	}
 	public void setThreebjects(Threebject threebjects[]){
 		this.threebjects = threebjects;
+	}
+	public void setColor(Color c){
+		this.color=c;
 	}
 	
 	public ArrayList<Polygon> draw(Point origin, double viewMatrix[][]){
@@ -60,7 +71,7 @@ public class Fourbject {
 			}
 			double mIntercept[][] = Matrix.rref(Matrix.augment(Matrix.multiply(A, viewMatrix),b)); //rref(A*V  b)
 						
-			if(mIntercept[2][2]<=1.0000000001 && mIntercept[2][2]>=0.9999999999){ //gahddam doubles
+			if(mIntercept[2][2]<=1.0000000001 && mIntercept[2][2]>=0.9999999999){ //gahddam doubles //TODO: there must be a better way to do this. right?
 				Point newIntercept3D = new Point(mIntercept[0][3],mIntercept[1][3],mIntercept[2][3]);
 				double newIntercept4DArray[][]=Matrix.multiply(viewMatrix, new double[][]{{newIntercept3D.x},{newIntercept3D.y},{newIntercept3D.z}});
 				Point newIntercept4D = new Point(newIntercept4DArray[0][0],newIntercept4DArray[1][0], newIntercept4DArray[2][0], newIntercept4DArray[3][0]);
@@ -73,12 +84,17 @@ public class Fourbject {
 		ArrayList <Polygon> pgons=new ArrayList <Polygon> (0);
 		for(Threebject t : threebjects){
 			Polygon tbjPolygon = t.draw(intercepts);
-			
 			if(tbjPolygon!=null){
+				if(this.color!=null){
+					tbjPolygon.setColor(this.color);
+				}
 				pgons.add(tbjPolygon);
 			}
 		}
 		return pgons;
 	}
+	/*public String toString(){
+		String str=""
+	}*/
 
 }
