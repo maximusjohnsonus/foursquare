@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.util.ArrayList;
 
 public class Threebject {
 	int edges[]; //indices of edges in Fourbject's edges[][] list

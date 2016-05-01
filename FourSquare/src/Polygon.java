@@ -12,6 +12,179 @@ public class Polygon {
 		this.points = points;
 		this.color=new Color((int)Math.random()*255,(int)Math.random()*255,(int)Math.random()*255);
 	}
+	public void screenPoints(double fov){ //Order points into a convex polygon and convert them to screen coordinates with depth
+		/* Convert all points from (forward dist, rightward dist, upward dist) to (forward dist, rightward angle, upward angle) 
+		 * In XY, then in XZ:
+		 * Find CW-est and CCW-est points by checking if smallest angle between points is positive or negative
+		 * If polygon does not cover rufus (CW-est point is CW of CCW-est):
+		 * 		If CCW-est point is visible:
+		 * 			For all points, if point's new coord < CCW-est point's new coord, add 2π to point's new coord
+		 * 		Else if CW-est point is visible:
+		 * 			For all points, if point's new coord > CW-est point's new coord, subtract 2π from point's new coord
+		 * 		Else
+		 * 			Polygon isn't even visible, kill it.
+		 * Else (polygon covers rufus):
+		 * 		If point with lowest new coord (should be <0) is inside view box, duplicate point with highest coord and subtract 2π from its new coord
+		 * 		Likewise with point with highest coord (make sure to not use point you from last line by holding that point and adding it after this step)
+		 * Scale points and order them in YZ plane so they're convex
+		 */
+		for(int iPt=0; iPt<points.size(); iPt++){
+			Point pt = points.get(iPt);
+			points.set(iPt, new Point(pt.x, getAngle(pt.x, pt.y), getAngle(pt.x, pt.z)));
+		}
+		//XY iteration:
+		Point CWest = points.get(0);
+		Point CCWest = points.get(0);
+		double angleSwept=0;
+		for(int iPt=1; iPt<points.size(); iPt++){
+			Point pt = points.get(iPt);
+			double CWAngle = pt.y-CWest.y;
+			if(CWAngle>0 && CWAngle<=Math.PI){
+				CWest=pt;
+				angleSwept+=CWAngle;
+			} else if(CWAngle <= -Math.PI){
+				CWest=pt;
+				angleSwept+=2*Math.PI+CWAngle;
+			}
+			double CCWAngle = pt.y-CCWest.y;
+			if((CCWAngle<0 && CCWAngle>=-Math.PI)){
+				CCWest=pt;
+				angleSwept-=CCWAngle;
+			} else if(CCWAngle >= Math.PI){
+				CCWest=pt;
+				angleSwept+=2*Math.PI-CCWAngle;
+			}
+			System.out.println(iPt+": "+angleSwept);
+		}
+		if(angleSwept<Math.PI){
+			if(CWest.y>=-fov && CWest.y<=fov){
+				for(int iPt=0; iPt<points.size(); iPt++){
+					Point pt = points.get(iPt);
+					if(pt.y>CWest.y){
+						points.get(iPt).changeCoord(1, -2*Math.PI);
+						//points.set(iPt, new Point(pt.x, pt.y-2*Math.PI, pt.z));
+					}
+				}
+			} else if(CCWest.y>=-fov && CCWest.y<=fov){
+				for(int iPt=0; iPt<points.size(); iPt++){
+					Point pt = points.get(iPt);
+					if(pt.y<CCWest.y){
+						points.get(iPt).changeCoord(1, 2*Math.PI);
+						//points.set(iPt, new Point(pt.x, pt.y+2*Math.PI, pt.z));
+					}
+				}
+			} else if(CCWest.y>0){
+				System.out.println("XY kill");
+				points = null;
+				return;
+			}
+		} else {
+			Point min = points.get(0);
+			Point max = points.get(0);
+			for(int iPt=1; iPt<points.size(); iPt++){
+				Point pt=points.get(iPt);
+				if(pt.y<min.y){
+					min=pt;
+				}
+				if(pt.y>max.y){
+					max=pt;
+				}
+			}
+			if(min.y>-fov){
+				points.add(0, new Point(max.x, max.y-2*Math.PI, max.z));
+			}
+			if(max.y<fov){
+				points.add(new Point(min.x, min.y+2*Math.PI, min.z));
+			}
+		}
+		//XZ iteration
+		CWest = points.get(0);
+		CCWest = points.get(0);
+		angleSwept=0;
+		for(int iPt=1; iPt<points.size(); iPt++){
+			Point pt = points.get(iPt);
+			double CWAngle = pt.z-CWest.z;
+			if(CWAngle>0 && CWAngle<=Math.PI){
+				CWest=pt;
+				angleSwept+=CWAngle;
+			} else if(CWAngle <= -Math.PI){
+				CWest=pt;
+				angleSwept+=2*Math.PI+CWAngle;
+			}
+			double CCWAngle = pt.z-CCWest.z;
+			if((CCWAngle<0 && CCWAngle>=-Math.PI)){
+				CCWest=pt;
+				angleSwept-=CCWAngle;
+			} else if(CCWAngle >= Math.PI){
+				CCWest=pt;
+				angleSwept+=2*Math.PI-CCWAngle;
+			}
+			System.out.println(iPt+": "+angleSwept);
+		}
+		if(angleSwept<Math.PI){
+			if(CWest.z>=-fov && CWest.z<=fov){
+				for(int iPt=0; iPt<points.size(); iPt++){
+					Point pt = points.get(iPt);
+					if(pt.z>CWest.z){
+						points.get(iPt).changeCoord(2, -2*Math.PI);
+						//points.set(iPt, new Point(pt.x, pt.y-2*Math.PI, pt.z));
+					}
+				}
+			} else if(CCWest.z>=-fov && CCWest.z<=fov){
+				for(int iPt=0; iPt<points.size(); iPt++){
+					Point pt = points.get(iPt);
+					if(pt.z<CCWest.z){
+						points.get(iPt).changeCoord(2, 2*Math.PI);
+						//points.set(iPt, new Point(pt.x, pt.y+2*Math.PI, pt.z));
+					}
+				}
+			} else if(CCWest.z>0){
+				System.out.println("XZ kill");
+				points = null;
+				return;
+			}
+		} else {
+			Point min = points.get(0);
+			Point max = points.get(0);
+			for(int iPt=1; iPt<points.size(); iPt++){
+				Point pt=points.get(iPt);
+				if(pt.z<min.z){
+					min=pt;
+				}
+				if(pt.z>max.z){
+					max=pt;
+				}
+			}
+			if(min.z>-fov){
+				points.add(0, new Point(max.x, max.y, max.z-2*Math.PI));
+			}
+			if(max.z<fov){
+				points.add(new Point(min.x, min.y, min.z+2*Math.PI));
+			}	
+		}
+	}
+	private double getAngle(double adj, double opp){ //atan function with 360° output
+		if(adj>=0){
+			return Math.atan(opp/adj);
+		}
+		if(opp>=0){
+			return Math.atan(opp/adj) + Math.PI;
+		}
+		return Math.atan(opp/adj) - Math.PI;
+	}
+	public void scaleYZ(double factor){
+		for(Point pt:points){
+			pt.setCoord(1, pt.y*factor);
+			pt.setCoord(2, pt.z*factor);
+		}
+	}
+	public void fixCoordsBecauseAJankyFixIsBetterThanNoFix(){
+		for(int i=0; i<points.size(); i++){
+			Point pt=points.get(i);
+			points.set(i, new Point(pt.y, pt.z, pt.x));
+		}
+	}
+	
 	public void clipPoints(double fov, int windowWidth, int windowHeight){
 		for(int i=0; i<points.size(); i++){
 			Point oldPt = points.get(i);
@@ -40,8 +213,8 @@ public class Polygon {
 	public void convertToScreenCoords(double fov){ //make the vertices of the polygon (which have normal coords) into screen coords (fov*y/x, fov*z/x) with depth (x) data 
 		for(int i=0; i<points.size(); i++){
 			Point oldPt = points.get(i);
-			//points.set(i, new Point((fov*oldPt.y/Math.abs(oldPt.x)), (fov*oldPt.z/Math.abs(oldPt.x)), oldPt.x)); //TODO: the abs(x) works but only doing the end points isn't quite right, maybe only get screencoords later?
-			points.set(i, new Point(fov*Math.atan(oldPt.y/oldPt.x), fov*Math.atan(oldPt.z/oldPt.x), oldPt.x)); //TODO: the abs(x) works but only doing the end points isn't quite right, maybe only get screencoords later?
+			points.set(i, new Point((fov*oldPt.y/Math.abs(oldPt.x)), (fov*oldPt.z/Math.abs(oldPt.x)), oldPt.x)); //TODO: the abs(x) works but only doing the end points isn't quite right, maybe only get screencoords later?
+			//points.set(i, new Point(fov*Math.atan(oldPt.y/oldPt.x), fov*Math.atan(oldPt.z/oldPt.x), oldPt.x)); //TODO: the abs(x) works but only doing the end points isn't quite right, maybe only get screencoords later?
 		}
 	}
 	public void orderPoints(){

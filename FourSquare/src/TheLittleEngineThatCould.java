@@ -18,8 +18,9 @@ public class TheLittleEngineThatCould extends JFrame {
 	public static int windowHeight = 500;
 	int lookSpeed=5;
 	double moveSpeed=0.3;
-	boolean noClip=true;
-	double fov=500;
+	double checkSteps=3;
+	boolean noClip=false;
+	double fov=500;//Math.PI/4;
 	Robot wallE;
 	Rufus rufus;
 	ArrayList <Fourbject> objs=new ArrayList<>(0);
@@ -52,15 +53,18 @@ public class TheLittleEngineThatCould extends JFrame {
 		wallE.mouseMove(this.getLocationOnScreen().x+TheLittleEngineThatCould.windowWidth/2, this.getLocationOnScreen().y+TheLittleEngineThatCould.windowHeight/2); //move cursor to center
 		this.setCursor(this.getToolkit().createCustomCursor( new BufferedImage( 1, 1, BufferedImage.TYPE_INT_ARGB ), new java.awt.Point(), null ) ); //hide cursor
 		
-		objs.add(new Fourbject(new Point[]{new Point(3,-1,-1,-1),new Point(3,-1,1,-1),new Point(3,1,1,-1),new Point(3,1,-1,-1),new Point(3,-1,-1,1),new Point(3,-1,1,1),new Point(3,1,1,1),new Point(3,1,-1,1)},new int[][]{{0,1},{1,2},{2,3},{3,0},{4,5},{5,6},{6,7},{7,4},{0,4},{1,5},{2,6},{3,7}},new Threebject[]{new Threebject(new int[]{0,1,2,3,4,5,6,7,8,9,10,11})}));
-		objs.add(new Tesseract(new Point(3,1,-0.5,0),new Point(100,2,0.5,1)));
-		objs.add(new Tesseract(new Point(-1,-1,-1,-1),new Point(1,1,1,1)));
+		//objs.add(new Fourbject(new Point[]{new Point(-1,-1,1,-1),new Point(1,-1,1,-1),new Point(1,1,1,-1),new Point(-1,1,1,-1),new Point(-1,-1,1,1),new Point(1,-1,1,1),new Point(1,1,1,1),new Point(-1,1,1,1)},new int[][]{{0,1},{1,2},{2,3},{3,0},{4,5},{5,6},{6,7},{7,4},{0,4},{1,5},{2,6},{3,7}},new Threebject[]{new Threebject(new int[]{0,1,2,3,4,5,6,7,8,9,10,11})}));
+		//objs.add(new Fourbject(new Point[]{new Point(3,-1,-1,-1),new Point(3,-1,1,-1),new Point(3,1,1,-1),new Point(3,1,-1,-1),new Point(3,-1,-1,1),new Point(3,-1,1,1),new Point(3,1,1,1),new Point(3,1,-1,1)},new int[][]{{0,1},{1,2},{2,3},{3,0},{4,5},{5,6},{6,7},{7,4},{0,4},{1,5},{2,6},{3,7}},new Threebject[]{new Threebject(new int[]{0,1,2,3,4,5,6,7,8,9,10,11})}));
+		//objs.add(new Fourbject(new Point[]{new Point(3,-1,1,-1),new Point(4,-1,1,-1),new Point(4,1,1,-1),new Point(3,1,1,-1),new Point(3,-1,1,1),new Point(4,-1,1,1),new Point(4,1,1,1),new Point(3,1,1,1)},new int[][]{{0,1},{1,2},{2,3},{3,0},{4,5},{5,6},{6,7},{7,4},{0,4},{1,5},{2,6},{3,7}},new Threebject[]{new Threebject(new int[]{0,1,2,3,4,5,6,7,8,9,10,11})}));
+		//objs.add(new Fourbject(new Point[]{new Point(3,1,-1,-1),new Point(4,1,-1,-1),new Point(4,1,1,-1),new Point(3,1,1,-1),new Point(3,1,-1,1),new Point(4,1,-1,1),new Point(4,1,1,1),new Point(3,1,1,1)},new int[][]{{0,1},{1,2},{2,3},{3,0},{4,5},{5,6},{6,7},{7,4},{0,4},{1,5},{2,6},{3,7}},new Threebject[]{new Threebject(new int[]{0,1,2,3,4,5,6,7,8,9,10,11})}));
+		//objs.add(new Tesseract(new Point(3,1,-0.5,0),new Point(100,2,0.5,1)));
+		//objs.add(new Tesseract(new Point(-1,-1,-1,-1),new Point(1,1,1,1)));
 		/*Point p[]= {new Point(1/Math.sqrt(6),4+1/Math.sqrt(3),1,1/Math.sqrt(10)),
 				new Point(1/Math.sqrt(6),4+1/Math.sqrt(3),-1,1/Math.sqrt(10)),
 				new Point(1/Math.sqrt(6),4-2/Math.sqrt(3),0,1/Math.sqrt(10)),
 				new Point(-Math.sqrt(3/2),4+0,0,1/Math.sqrt(10)),
 				new Point(0,4+0,0,-2*Math.sqrt(2/5))};*/
-		Point p[]= {new Point(0,4+0,0,0),
+		/*Point p[]= {new Point(0,4+0,0,0),
 				new Point(1,4+0,0,0),
 				new Point(0,4+1,0,0),
 				new Point(0,4+0,1,0),
@@ -75,7 +79,7 @@ public class TheLittleEngineThatCould extends JFrame {
 		objs.add(new Fourbject(p,edg,t,Color.RED)); //5-cell*/
 		
 		//objs=LevelBuilder.genFourSquareShellFourxels(new Point(-2,-2,-2,-2), new Point(2,2,2,2));
-		int level=5;
+		int level=4;
 		switch(level){
 		case -1: //closed cell
 			boolean[][][][] mapa=new boolean[1][1][1][1];
@@ -180,6 +184,12 @@ public class TheLittleEngineThatCould extends JFrame {
 			objs.addAll(LevelBuilder.buildMaze(map4, new Point(1.5, 1.5, 1.5, 1.5), 3, 0.5));
 			objs.addAll(LevelBuilder.GOOOOOOOL(new Point(6, 6, 6, 6), 3));
 			break;
+		case 5: //simple scavenger hunt in 3D
+			boolean[][][][] map5=new boolean[3][3][3][3];
+			map5[0][0][0][0]=true;
+			break;
+		case 6: //"simple" scavenger hunt in 4D
+			break;
 		}
 
 
@@ -239,42 +249,42 @@ public class TheLittleEngineThatCould extends JFrame {
 		//System.out.println("location: "+rufus.location+"\nview matrix: ");
 		//Matrix.printMatrix(rufus.viewMatrix);
 		if (input.isKeyDown(KeyEvent.VK_W)) {
-			if(noClip || !collision(rufus.testForwards(moveSpeed))){
+			if(noClip || !collision(rufus.testForwards(moveSpeed*checkSteps))){
 				rufus.moveForwards(moveSpeed); 
 			}
 		}
 		if (input.isKeyDown(KeyEvent.VK_S)) { 
-			if(noClip || !collision(rufus.testForwards(-moveSpeed))){
+			if(noClip || !collision(rufus.testForwards(-moveSpeed*checkSteps))){
 				rufus.moveForwards(-moveSpeed); 
 			}
 		}
 		if (input.isKeyDown(KeyEvent.VK_D)) { 
-			if(noClip || !collision(rufus.testSideways(moveSpeed))){
+			if(noClip || !collision(rufus.testSideways(moveSpeed*checkSteps))){
 				rufus.moveSideways(moveSpeed); 
 			}
 		}
 		if (input.isKeyDown(KeyEvent.VK_A)) { 
-			if(noClip || !collision(rufus.testSideways(-moveSpeed))){
+			if(noClip || !collision(rufus.testSideways(-moveSpeed*checkSteps))){
 				rufus.moveSideways(-moveSpeed); 
 			} 
 		}
 		if (input.isKeyDown(KeyEvent.VK_SPACE)) {
-			if(noClip || !collision(rufus.testUpwards(moveSpeed))){
+			if(noClip || !collision(rufus.testUpwards(moveSpeed*checkSteps))){
 				rufus.moveUpwards(moveSpeed); 
 			}
 		}
 		if (input.isKeyDown(KeyEvent.VK_SHIFT)) { 
-			if(noClip || !collision(rufus.testUpwards(-moveSpeed))){
+			if(noClip || !collision(rufus.testUpwards(-moveSpeed*checkSteps))){
 				rufus.moveUpwards(-moveSpeed);
 			}
 		}
 		if (input.isKeyDown(KeyEvent.VK_R)) {
-			if(noClip || !collision(rufus.testStepW(moveSpeed))){
+			if(noClip || !collision(rufus.testStepW(moveSpeed*checkSteps))){
 				rufus.stepW(moveSpeed); 
 			}
 		}
 		if (input.isKeyDown(KeyEvent.VK_F)) { 
-			if(noClip || !collision(rufus.testStepW(-moveSpeed))){
+			if(noClip || !collision(rufus.testStepW(-moveSpeed*checkSteps))){
 				rufus.stepW(-moveSpeed); 
 			}
 		}
@@ -486,16 +496,33 @@ public class TheLittleEngineThatCould extends JFrame {
 	//I took a lot of ideas from https://github.com/FlightOfGrey/3D-z-buffer/tree/master/src
 	private void addAllToZBuffer(ArrayList<Polygon> polygons) {
 		long polygonTime=System.currentTimeMillis();
+		System.out.println();
+		int i=0;
 		for(Polygon polygon:polygons){
+			System.out.println(i++);
 			long taskTime=System.currentTimeMillis();
 			Color c = polygon.getColor();
-			//System.out.println("pre-sort"+polygon);
+			/*System.out.println("pre-change: "+polygon);
+			polygon.screenPoints(fov); //convert to screen coordinates (angles) in an intelligent manner
+			if(Lumberjack.timeLogLevel>=4){
+				System.out.println("screen (yz): "+(System.currentTimeMillis()-taskTime));
+				taskTime = System.currentTimeMillis();
+			}
+			if(polygon.points == null){ //skip a null polygon (one that is killed because it isn't visible)
+				continue;
+			}
+			System.out.println("post-change: "+polygon);
+			polygon.scaleYZ(windowWidth/2/fov); //scale points
+			if(Lumberjack.timeLogLevel>=4){
+				System.out.println("scale (yz): "+(System.currentTimeMillis()-taskTime));
+				taskTime = System.currentTimeMillis();
+			}
 			polygon.orderPointsYZ(); //order so the polygon is convex //TODO: (optimization) look at what generates polygons and see if you can eliminate the need for ordering, or reduce # of checks
-			//System.out.println("post-sort"+polygon);
 			if(Lumberjack.timeLogLevel>=4){
 				System.out.println("order (yz): "+(System.currentTimeMillis()-taskTime));
 				taskTime = System.currentTimeMillis();
 			}
+			polygon.fixCoordsBecauseAJankyFixIsBetterThanNoFix();*/
 			/*polygon.clipPoints(fov, windowWidth, windowHeight);
 			if(Lumberjack.timeLogLevel>=4){
 				System.out.println("clip points: "+(System.currentTimeMillis()-taskTime));
@@ -506,14 +533,12 @@ public class TheLittleEngineThatCould extends JFrame {
 				System.out.println("convert: "+(System.currentTimeMillis()-taskTime));
 				taskTime = System.currentTimeMillis();
 			}
-			if(polygon.numPoints()==0){
-				continue;
-			}
-			/*polygon.orderPoints(); //order so the polygon is convex //TODO: (optimization) look at what generates polygons and see if you can eliminate the need for ordering, or reduce # of checks
+			
+			polygon.orderPoints(); //order so the polygon is convex //TODO: (optimization) look at what generates polygons and see if you can eliminate the need for ordering, or reduce # of checks
 			if(Lumberjack.timeLogLevel>=4){
 				System.out.println("order: "+(System.currentTimeMillis()-taskTime));
 				taskTime = System.currentTimeMillis();
-			}*/
+			}
 			double[][] stripes = polygon.getStripes(); //make the polygon into a series of horizontal stripes 1 unit tall, with endpoints with same data as above (screenX, screenY, depth)
 			if(Lumberjack.timeLogLevel>=4){
 				System.out.println("getStripes: "+(System.currentTimeMillis()-taskTime));
